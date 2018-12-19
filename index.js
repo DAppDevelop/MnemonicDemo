@@ -20,7 +20,7 @@ let root = bip32.fromSeed(seed, myNetwork)
 // console.log("root: ", root.toBase58)
 
 for(let i = 0; i < 5; i++) {
-    // 4、通过根秘钥生成子秘钥
+    // 4、通过根秘钥生成子秘钥（path路径需要和myNetwork一致，具体查看bip32规定）
     const path = "m/44'/1'/0'/0/" + i
     console.log("\n路径：", path)
     let keypair = root.derivePath(path)
@@ -35,5 +35,12 @@ for(let i = 0; i < 5; i++) {
 
     // 7、获取地址
     let address = bitcoin.payments.p2pkh({pubkey: keypair.publicKey, network: myNetwork}).address
-    console.log("地址：", address)
+    console.log("普通地址：", address)
+
+    // 8、获取隔离见证地址(用p2sh包含p2wpkh使用)
+    let witnessAddress = bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wpkh({pubkey: keypair.publicKey, network: myNetwork}),
+        network: myNetwork
+    }).address
+    console.log("隔离见证地址：", witnessAddress)
 }
